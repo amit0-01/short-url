@@ -9,6 +9,8 @@ const {checkForAuthentication,restrictToLoggedInUserOnly, restrictTo}  = require
 const staticRoute = require('./routes/staticRouter');
 const urlRoute = require('./routes/url');
 const userRoute = require('./routes/users');
+require('dotenv').config()
+
 
 
 const app = express();
@@ -53,7 +55,7 @@ const entry = await URL.findOneAndUpdate(
 res.redirect(entry.redirectURL);
 });
 
-connectToMongoDB('mongodb://127.0.0.1:27017/short-url')
+connectToMongoDB(`${process.env.MONGODBURL}/short-url`)
 .then(() =>
     console.log('Mongodb connected')
 ) 
