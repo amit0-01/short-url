@@ -3,10 +3,12 @@ const router = express.Router();
 const URL = require("../models/url")
 const { restrictTo } = require('../middlewares/auth')
 
+
 router.get("/", restrictTo(['NORMAL']), async function(req, res){
     const allurls = await URL.find();
-    console.log('aallurls', allurls);
+    const shortID = req.query.id || null;
     return res.render("home",{
+        id: shortID,
         urls: allurls,
     });
 })

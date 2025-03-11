@@ -56,7 +56,7 @@ res.redirect(entry.redirectURL);
 connectToMongoDB('mongodb://127.0.0.1:27017/short-url')
 .then(() =>
     console.log('Mongodb connected')
-)
+) 
 
 app.use("/", staticRoute);
 app.use("/user", userRoute);

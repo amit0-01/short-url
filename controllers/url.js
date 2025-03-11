@@ -4,6 +4,7 @@ async function handleGenerateNewShortURL(req,res) {
     const body = req.body;
     if(!body.url) return res.status(400).json({error: 'url is required'})
   const shortID = shortid();
+  const allUrls = await URL.find();
   await URL.create(
     {
         shortId: shortID,
@@ -12,9 +13,11 @@ async function handleGenerateNewShortURL(req,res) {
         createdBy: req.user._id
     }
   );
-  return res.render("home", {
-    id:shortId,
-  })
+  res.redirect(`/?id=${shortID}`);
+  // return res.render("home", {
+  //   id:shortID,
+  //   urls: allUrls
+  // })
 }
 
 async function handleGetAnalytics(req,res){
@@ -25,7 +28,29 @@ async function handleGetAnalytics(req,res){
     analytics: result.visitHistory,
   });
 }
+
+// URL DELETE
+
+async function handleUrlDelete(req, res) {
+  try {
+    const { id } = req.params; 
+
+    const result = await URL.deleteOne({ shortId: id });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: "URL not found" });
+    }
+
+    res.json({ message: "URL deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting URL:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 module.exports = {
     handleGenerateNewShortURL,
-    handleGetAnalytics
+    handleGetAnalytics,
+    handleUrlDelete
 }
+

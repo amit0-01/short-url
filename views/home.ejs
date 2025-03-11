@@ -4,46 +4,105 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello from server</title>
+    <title>URL Shortener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function signOut() {
+            document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = "/login";
+        }
+
+        async function deleteUrl(id, rowElement) {
+            if (confirm("Are you sure you want to delete this URL?")) {
+                try {
+                    const response = await fetch(`/url/${id}`, { method: 'DELETE' });
+                    if (response.ok) {
+                        rowElement.remove();
+                    } else {
+                        alert("Failed to delete URL.");
+                    }
+                } catch (error) {
+                    console.error("Error deleting URL:", error);
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-     <h1>URL Shortner</h1>
-     <% if (locals.id) { %>
-        <p>URL Generated: http://localhost:8000/url/<%= id %></p>
-    <% } %>
-     <div>
-        <form method="POST" action="/url">
-        <label>Enter Your Original URL</label>
-        <input
-        type = "text"
-        name = 'url'
-        placeholder="https://example.com"
-        />
-        <button type = "submit">Generate</button>
-    </form>
-     </div>
-     <div>
+<body class="bg-gray-100 text-gray-900">
+    <div class="max-w-3xl mx-auto my-10 p-6 bg-white shadow-md rounded-lg relative">
+        <!-- Sign Out Button -->
+        <button 
+            onclick="signOut()"
+            class="absolute top-4 right-4 bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600 transition duration-300"
+        >
+            Sign Out
+        </button>
+
+        <h1 class="text-3xl font-bold text-center mb-6 text-blue-600">URL Shortener</h1>
+
+        <% if (locals.id) { %>
+            <p class="text-green-600 text-lg font-semibold text-center bg-green-100 p-3 rounded-md">
+                URL Generated: 
+                <a href="http://localhost:8000/url/<%= id %>" class="text-blue-500 hover:underline">
+                    http://localhost:8000/url/<%= id %>
+                </a>
+            </p>
+        <% } %>
+
+        <div class="mt-6">
+            <form method="POST" action="/url" class="flex flex-col gap-4">
+                <label class="text-lg font-semibold">Enter Your Original URL</label>
+                <input 
+                    type="text" 
+                    name="url" 
+                    placeholder="https://example.com"
+                    class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                />
+                <button 
+                    type="submit" 
+                    class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300"
+                >
+                    Generate
+                </button>
+            </form>
+        </div>
+
         <% if (locals.urls) { %>
-            <table>
-                <thead>
-                    <tr>
-                        <th>S. No</th>
-                        <th>ShortID</th>
-                        <th>Redirect</th>
-                        <th>Clicks</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% urls.forEach(function(url, index) { %>
-                        <tr>
-                            <td><%= index + 1 %></td>
-                            <td><%= url.shortId %></td>
-                            <td><%= url.redirectURL %></td>
-                            <td><%= url.visitHistory.length %></td>
+            <div class="mt-8">
+                <table class="w-full border-collapse border border-gray-300 shadow-md">
+                    <thead>
+                        <tr class="bg-blue-600 text-white">
+                            <th class="p-3">S. No</th>
+                            <th class="p-3">ShortID</th>
+                            <th class="p-3">Redirect</th>
+                            <th class="p-3">Clicks</th>
+                            <th class="p-3">Actions</th>
                         </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <% urls.forEach(function(url, index) { %>
+                            <tr class="bg-white border-b border-gray-200 hover:bg-gray-100" id="row-<%= url.shortId %>">
+                                <td class="p-3 text-center"><%= index + 1 %></td>
+                                <td class="p-3 text-center font-semibold text-blue-600"><%= url.shortId %></td>
+                                <td class="p-3 text-center">
+                                    <a href="<%= url.redirectURL %>" target="_blank" class="text-blue-500 hover:underline">
+                                        <%= url.redirectURL %>
+                                    </a>
+                                </td>
+                                <td class="p-3 text-center"><%= url.visitHistory.length %></td>
+                                <td class="p-3 text-center">
+                                    <button 
+                                        onclick="deleteUrl('<%= url.shortId %>', document.getElementById('row-<%= url.shortId %>'))"
+                                        class="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600 transition duration-300"
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
         <% } %>
     </div>
 </body>
