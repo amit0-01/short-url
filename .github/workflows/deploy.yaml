@@ -3,7 +3,7 @@ name: Deploy Short Url to AWS
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
